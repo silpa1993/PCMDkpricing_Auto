@@ -60,9 +60,7 @@ priceplan.forEach((plan) => {
     await oscarpage.getByRole("button", { name: "Sign in" }).click();
     await oscarpage.locator("xpath=//div/a[9]").click();
     await oscarpage.waitForLoadState("networkidle");
-    await oscarpage
-      .locator('input[name="EXTERNAL_ID1"]')
-      .fill(testdata.Deviceid);
+    await oscarpage.locator('input[name="EXTERNAL_ID1"]').fill(testdata.Deviceid);
     await oscarpage.locator('input[name="EXTERNAL_ID1"]').press("Enter");
     await oscarpage.waitForLoadState("networkidle");
     const devname = oscarpage.getByTitle(testdata.Devicename);
@@ -77,12 +75,7 @@ priceplan.forEach((plan) => {
     await page.goto("https://x15729tzz.test.tre.se:44304/startpage_backup.php");
 
     const page1Promise = page.waitForEvent("popup");
-    await page
-      .getByRole("row", {
-        name: "Registrer privatabonnement Forlæng privatabonnement Registrer businessabonnement Forlæng businessabonnement",
-      })
-      .getByRole("link", { name: "Registrer privatabonnement" })
-      .click();
+    await page.getByRole("row", {name: "Registrer privatabonnement Forlæng privatabonnement Registrer businessabonnement Forlæng businessabonnement"}).getByRole("link", { name: "Registrer privatabonnement" }).click();
     const page1 = await page1Promise;
 
     await page1
@@ -176,12 +169,7 @@ priceplan.forEach((plan) => {
       //for loop for 3Afbetalning
       for (let j = 0; j < 4; j++) {
         await page1.waitForTimeout(1000);
-        const Afbetaling = (
-          await page1
-            .frameLocator('frame[name="leftFrame"]')
-            .locator("#addition")
-            .selectOption({ index: j })
-        ).toString();
+        const Afbetaling = (await page1.frameLocator('frame[name="leftFrame"]').locator("#addition").selectOption({ index: j })).toString();
         await expect(
           page1
             .frameLocator('frame[name="leftFrame"]')
