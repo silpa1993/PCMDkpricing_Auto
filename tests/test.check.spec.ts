@@ -48,10 +48,8 @@ priceplan.forEach((plan) => {
     //let arr:string[] = new Array("T41769","15Timer 15GB (U.Roaming) 100kr", "T41914","3Family - Ekstra Bruger 110kr", "T41830","3Family - Fri Tale 10GB 125kr");
     //Oscar login
     const oscarpage = await context.newPage();
-    await oscarpage.goto(
-      "https://x15729tzz.test.tre.se:44302/login/login.html?req=/oscarAdmin/?"
-    );
-
+    await oscarpage.goto("https://x15729tzz.test.tre.se:44302/login/login.html?req=/oscarAdmin/?");
+  
     await oscarpage.waitForLoadState();
     await oscarpage.locator('input[name="httpd_username"]').click();
     await oscarpage.locator('input[name="httpd_username"]').fill("cftest1");
@@ -100,184 +98,100 @@ priceplan.forEach((plan) => {
       .nth(1);
     await expect(locator).toBeVisible();
 
-    await page1
-      .frameLocator('frame[name="leftFrame"]')
-      .getByRole("link")
-      .nth(1)
-      .click();
-    await page1
-      .frameLocator('frame[name="leftFrame"]')
-      .locator('input[name="subscriptionType"]')
-      .first()
-      .check();
+    await page1.frameLocator('frame[name="leftFrame"]').getByRole("link").nth(1).click();
+    await page1.frameLocator('frame[name="leftFrame"]').locator('input[name="subscriptionType"]').first().check();
 
     //RW screen
-    await page1
-      .frameLocator('frame[name="leftFrame"]')
-      .locator("#tariffPlan")
-      .selectOption(ppid);
-    await page1
-      .frameLocator('frame[name="leftFrame"]')
-      .locator("#mobile")
-      .selectOption({ index: 2 });
-    await page1
-      .frameLocator('frame[name="leftFrame"]')
-      .locator("#mobile")
-      .selectOption(testdata.Deviceid);
-    await page1
-      .frameLocator('frame[name="leftFrame"]')
-      .locator("#bindingPeriod")
-      .selectOption(testdata.bindingperiod1);
-
+    await page1.frameLocator('frame[name="leftFrame"]').locator("#tariffPlan").selectOption(ppid);
+    await page1.frameLocator('frame[name="leftFrame"]').locator("#mobile").selectOption({ index: 2 });
+    await page1.frameLocator('frame[name="leftFrame"]').locator("#mobile").selectOption(testdata.Deviceid);
+    await page1.frameLocator('frame[name="leftFrame"]').locator("#bindingPeriod").selectOption(testdata.bindingperiod1);
+    
     //fetch values from OSCAR table
 
-    const rows = oscarpage.locator(
-      '//table[@id="productIndirectPricelist"]/tbody/tr'
-    );
+    const rows = oscarpage.locator('//table[@id="productIndirectPricelist"]/tbody/tr');
 
-    const value = oscarpage
-      .getByRole("row", { name: ppname + " -- -- " + testdata.bindingperiod1 })
-      .first()
-      .locator("td")
-      .nth(3);
+    const value = oscarpage.getByRole("row", { name: ppname + " -- -- " + testdata.bindingperiod1 }).first().locator("td").nth(3);
     const pricedev = await value.innerText();
     console.log("Expected device price=" + pricedev);
 
     //navigate back to RW for verification of device price
-    const devpricerw = await page1
-      .frameLocator('frame[name="leftFrame"]')
-      .getByText("Hardware pris:")
-      .innerText();
+    const devpricerw = await page1.frameLocator('frame[name="leftFrame"]').getByText("Hardware pris:").innerText();
     if (devpricerw.includes(pricedev) == true) {
-      console.log(
-        "Combination" +
-          testdata.bindingperiod1 +
-          " Hardware price is " +
-          pricedev +
-          " verified"
-      );
+      console.log("Combination" +testdata.bindingperiod1 +" Hardware price is " +pricedev +" verified");
 
-      await page1
-        .frameLocator('frame[name="leftFrame"]')
-        .locator("#addition")
-        .selectOption({ index: 1 });
+     
       let upfront0kr;
       let upfront600kr;
       let upfront1500kr;
       let upfront2400kr;
-
+      await page1.frameLocator('frame[name="leftFrame"]').locator("#addition").selectOption({index:1});
+      
       //for loop for 3Afbetalning
       for (let j = 0; j < 4; j++) {
-        await page1.waitForTimeout(1000);
-        const Afbetaling = (await page1.frameLocator('frame[name="leftFrame"]').locator("#addition").selectOption({ index: j })).toString();
-        await expect(
-          page1
-            .frameLocator('frame[name="leftFrame"]')
-            .locator("#miProductCost")
-        ).toBeAttached();
+        await expect(page1.frameLocator('frame[name="leftFrame"]').locator("#addition")).toBeAttached();
 
-        console.log(
-          "Verification is done for-" +
-            ppname +
-            " - " +
-            testdata.Devicename +
-            " - "
-        );
+        const Afbetaling = (await page1.frameLocator('frame[name="leftFrame"]').locator("#addition").selectOption({index:j})).toString();
+        
+        await expect(page1.frameLocator('frame[name="leftFrame"]').locator("#miProductCost")).toBeAttached();
+
+        console.log("Verification is done for-" +ppname +" - " +testdata.Devicename +" - " );
+        //test.setTimeout(6000);
+
         //for loop for upfront
         for (let i = 1; i < 5; i++) {
           switch (j) {
-            case 0:
-              {
-                upfront0kr = parseFloat(pricedev) / 10;
-                upfront600kr = (parseFloat(pricedev) - 600) / 10;
-                upfront1500kr = (parseFloat(pricedev) - 1500) / 10;
-                upfront2400kr = (parseFloat(pricedev) - 2400) / 10;
+            case 0:              {
+                upfront0kr = parseFloat(pricedev)/10;
+                upfront600kr = (parseFloat(pricedev)-600)/10;
+                upfront1500kr = (parseFloat(pricedev)-1500)/10;
+                upfront2400kr = (parseFloat(pricedev)-2400)/10;
               }
               break;
             case 1:
               {
-                upfront0kr = parseFloat(pricedev) / 20;
-                upfront600kr = (parseFloat(pricedev) - 600) / 20;
-                upfront1500kr = (parseFloat(pricedev) - 1500) / 20;
-                upfront2400kr = (parseFloat(pricedev) - 2400) / 20;
+                upfront0kr = parseFloat(pricedev)/20;
+                upfront600kr = (parseFloat(pricedev)-600)/20;
+                upfront1500kr = (parseFloat(pricedev)-1500)/20;
+                upfront2400kr = (parseFloat(pricedev)-2400)/20;
               }
               break;
             case 2:
               {
-                upfront0kr = parseFloat(pricedev) / 30;
-                upfront600kr = (parseFloat(pricedev) - 600) / 30;
-                upfront1500kr = (parseFloat(pricedev) - 1500) / 30;
-                upfront2400kr = (parseFloat(pricedev) - 2400) / 30;
+                upfront0kr = parseFloat(pricedev)/30;
+                upfront600kr = (parseFloat(pricedev)-600)/30;
+                upfront1500kr = (parseFloat(pricedev)-1500)/30;
+                upfront2400kr = (parseFloat(pricedev)-2400)/30;
               }
               break;
             case 3:
               {
-                upfront0kr = parseFloat(pricedev) / 40;
-                upfront600kr = (parseFloat(pricedev) - 600) / 40;
-                upfront1500kr = (parseFloat(pricedev) - 1500) / 40;
-                upfront2400kr = (parseFloat(pricedev) - 2400) / 40;
+                upfront0kr = parseFloat(pricedev)/40;
+                upfront600kr = (parseFloat(pricedev)-600)/40;
+                upfront1500kr = (parseFloat(pricedev)-1500)/40;
+                upfront2400kr = (parseFloat(pricedev)-2400)/40;
               }
               break;
 
             default:
               break;
           }
-
-          const selectddtext = (
-            await page1
-              .frameLocator('frame[name="leftFrame"]')
-              .locator("#miProductCost")
-              .selectOption({ index: i })
-          ).toString();
-
-          if (
-            selectddtext.includes(
-              "0-" + upfront0kr.toString().replace(".", ",")
-            ) == true
-          ) {
-            console.log(
-              testdata.bindingperiod1 +
-                " - " +
-                Afbetaling +
-                " - Intial cost 0 kr -" +
-                upfront0kr
-            );
-          } else if (
-            selectddtext.includes(
-              "600-" + upfront600kr.toString().replace(".", ",")
-            ) == true
-          ) {
-            console.log(
-              testdata.bindingperiod1 +
-                " - " +
-                Afbetaling +
-                " - Intial cost 600 kr -" +
-                upfront600kr
-            );
-          } else if (
-            selectddtext.includes(
-              "1500-" + upfront1500kr.toString().replace(".", ",")
-            ) == true
-          ) {
-            console.log(
-              testdata.bindingperiod1 +
-                " - " +
-                Afbetaling +
-                " -  Intial cost 1500 kr -" +
-                upfront1500kr
-            );
-          } else if (
-            selectddtext.includes(
-              "2400-" + upfront2400kr.toString().replace(".", ",")
-            ) == true
-          ) {
-            console.log(
-              testdata.bindingperiod1 +
-                " - " +
-                Afbetaling +
-                " -Intial cost 2400 kr - " +
-                upfront2400kr
-            );
+          //if upfront value less than 25 then make it NA/null and all upfront value for 10m is NA then afbetalning itself wont display
+          const selectddtext = (await page1.frameLocator('frame[name="leftFrame"]').locator("#miProductCost").selectOption({ index: i })).toString();
+          
+          if (selectddtext.includes("0-" + upfront0kr.toString().replace(".", ",")) == true) 
+          {
+            
+            console.log(testdata.bindingperiod1 +" - " +Afbetaling +" - Intial cost 0 kr -" +upfront0kr);
+          } else if (selectddtext.includes("600-" + upfront600kr.toString().replace(".", ",")) == true)
+          {
+            console.log(testdata.bindingperiod1 +" - " +Afbetaling +" - Intial cost 600 kr -" +upfront600kr );
+           } else if (selectddtext.includes("1500-" + upfront1500kr.toString().replace(".", ",")) == true) 
+          {
+            console.log(testdata.bindingperiod1 +" - " +Afbetaling +" -  Intial cost 1500 kr -" + upfront1500kr);
+          } else if (selectddtext.includes( "2400-" + upfront2400kr.toString().replace(".", ",")) == true) 
+          {
+            console.log(testdata.bindingperiod1 +" - " +Afbetaling +" -Intial cost 2400 kr - "+ upfront2400kr);
           }
         }
       }
